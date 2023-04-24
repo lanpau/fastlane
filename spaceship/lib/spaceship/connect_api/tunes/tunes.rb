@@ -147,7 +147,8 @@ module Spaceship
           included = []
 
           # Price tier
-          unless app_price_tier_id.nil?
+          unless true?
+          # unless app_price_tier_id.nil?
             relationships[:prices] = {
               data: [
                 {
