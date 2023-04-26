@@ -146,39 +146,6 @@ module Spaceship
           relationships = {}
           included = []
 
-          # Price tier
-          unless true?
-          # unless app_price_tier_id.nil?
-            relationships[:prices] = {
-              data: [
-                {
-                  type: "appPrices",
-                  id: "${price1}"
-                }
-              ]
-            }
-
-            included << {
-              type: "appPrices",
-              id: "${price1}",
-              attributes: {},
-              relationships: {
-                app: {
-                  data: {
-                    type: "apps",
-                    id: app_id
-                  }
-                },
-                priceTier: {
-                  data: {
-                    type: "appPriceTiers",
-                    id: app_price_tier_id.to_s
-                  }
-                }
-              }
-            }
-          end
-
           # Territories
           unless territory_ids.nil?
             territories_data = territory_ids.map do |id|
@@ -419,28 +386,6 @@ module Spaceship
         def get_available_territories(app_id: nil, filter: {}, includes: nil, limit: nil, sort: nil)
           params = tunes_request_client.build_params(filter: filter, includes: includes, limit: limit, sort: sort)
           tunes_request_client.get("apps/#{app_id}/availableTerritories", params)
-        end
-
-        #
-        # appPrices
-        #
-
-        def get_app_prices(app_id: nil, filter: {}, includes: nil, limit: nil, sort: nil)
-          params = tunes_request_client.build_params(filter: filter, includes: includes, limit: limit, sort: sort)
-          tunes_request_client.get("appPrices", params)
-        end
-
-        def get_app_price(app_price_id: nil, filter: {}, includes: nil, limit: nil, sort: nil)
-          params = tunes_request_client.build_params(filter: filter, includes: includes, limit: limit, sort: sort)
-          tunes_request_client.get("appPrices/#{app_price_id}", params)
-        end
-
-        #
-        # appPricePoints
-        #
-        def get_app_price_points(filter: {}, includes: nil, limit: nil, sort: nil)
-          params = tunes_request_client.build_params(filter: filter, includes: includes, limit: limit, sort: sort)
-          tunes_request_client.get("appPricePoints", params)
         end
 
         #

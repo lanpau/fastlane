@@ -20,15 +20,10 @@ module Deliver
       # Official App Store Connect does not have an endpoint to get app prices for an app
       # Need to get prices from the app's relationships
       # Prices from app's relationship doess not have price tier so need to fetch app price with price tier relationship
-      app_prices = nil
-      if app_prices && app_prices.first
-        app_price = Spaceship::ConnectAPI.get_app_price(app_price_id: app_prices.first.id, includes: "priceTier").first
-        old_price = app_price.price_tier.id
-      else
-        UI.message("App has no prices yet... Enabling all countries in App Store Connect")
-        territory_ids = Spaceship::ConnectAPI::Territory.all.map(&:id)
-        attributes[:availableInNewTerritories] = true
-      end
+
+      UI.message("App has no prices yet... Enabling all countries in App Store Connect")
+      territory_ids = Spaceship::ConnectAPI::Territory.all.map(&:id)
+      attributes[:availableInNewTerritories] = true
 
       if price_tier == old_price
         UI.success("Price Tier unchanged (tier #{old_price})")

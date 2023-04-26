@@ -17,7 +17,6 @@ module Spaceship
       attr_accessor :available_in_new_territories
       attr_accessor :content_rights_declaration
       attr_accessor :app_store_versions
-      attr_accessor :prices
 
       # Only available with Apple ID auth
       attr_accessor :distribution_type
@@ -55,7 +54,6 @@ module Spaceship
 
         "appStoreVersions" => "app_store_versions",
         # This attribute is already deprecated. It will be removed in a future release.
-        "prices" => "prices"
       })
 
       ESSENTIAL_INCLUDES = [
@@ -164,15 +162,6 @@ module Spaceship
         return resps.flat_map(&:to_models)
       end
 
-      #
-      # App Pricing
-      #
-
-      def fetch_app_prices(client: nil, filter: {}, includes: "priceTier", limit: nil, sort: nil)
-        client ||= Spaceship::ConnectAPI
-        resp = client.get_app_prices(app_id: id, filter: filter, includes: includes, limit: limit, sort: sort)
-        return resp.to_models
-      end
 
       #
       # App Store Versions

@@ -158,7 +158,6 @@ module Deliver
         upload_screenshots.upload(options, screenshots)
       end
 
-      # UploadPriceTier.new.upload(options)
     end
 
     # Verify the binary with App Store Connect
