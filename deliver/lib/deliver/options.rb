@@ -218,12 +218,6 @@ module Deliver
                                     default_value: false),
 
         # other app configuration
-        FastlaneCore::ConfigItem.new(key: :price_tier,
-                                     short_option: "-r",
-                                     env_name: "DELIVER_PRICE_TIER",
-                                     description: "The price tier of this application",
-                                     type: Integer,
-                                     optional: true),
         FastlaneCore::ConfigItem.new(key: :app_rating_config_path,
                                      short_option: "-g",
                                      env_name: "DELIVER_APP_RATING_CONFIG_PATH",

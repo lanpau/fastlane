@@ -223,9 +223,7 @@ module Spaceship
       # @return ([Spaceship::Tunes::IAPSubscriptionPricingInfo]) An array of pricing infos from multple subscription pricing tiers
       #   if the iap uses territorial pricing
       def pricing_info
-        return [] unless cleared_for_sale
-        return world_wide_pricing_info if world_wide_pricing?
-        territorial_pricing_info
+        return []
       end
 
       private
@@ -241,23 +239,14 @@ module Spaceship
       #
       # @return ([Spaceship::Tunes::PricingInfo]) An array of pricing infos from the same tier
       def world_wide_pricing_info
-        client
-          .pricing_tiers(application.apple_id)
-          .find { |p| p.tier_stem == pricing_intervals.first[:tier].to_s }
-          .pricing_info
+        return []
       end
 
       # Maps pricing intervals to their respective subscription pricing infos.
       #
       # @return ([Spaceship::Tunes::IAPSubscriptionPricingInfo]) An array of subscription pricing infos
       def territorial_pricing_info
-        pricing_matrix = client.subscription_pricing_tiers(application.apple_id)
-        pricing_intervals.map do |interval|
-          pricing_matrix
-            .find { |p| p.tier_stem == interval[:tier].to_s }
-            .pricing_info
-            .find { |i| i.country_code == interval[:country] }
-        end
+        return []
       end
     end
   end

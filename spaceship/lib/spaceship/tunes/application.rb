@@ -266,16 +266,6 @@ module Spaceship
         return can_reject
       end
 
-      # set the price tier. This method doesn't require `save` to be called
-      def update_price_tier!(price_tier)
-        # client.update_price_tier!(self.apple_id, price_tier)
-      end
-
-      # The current price tier
-      def price_tier
-        client.price_tier(self.apple_id)
-      end
-
       # set the availability. This method doesn't require `save` to be called
       def update_availability!(availability)
         client.update_availability!(self.apple_id, availability)

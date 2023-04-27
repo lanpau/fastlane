@@ -6,8 +6,6 @@ require_relative 'app_version_common'
 require_relative 'app_version_ref'
 require_relative 'availability'
 require_relative 'errors'
-require_relative 'iap_subscription_pricing_tier'
-require_relative 'pricing_tier'
 require_relative 'territory'
 require_relative '../connect_api/response'
 module Spaceship
@@ -657,94 +655,14 @@ module Spaceship
 
     def update_price_tier!(app_id, price_tier)
       return
-      r = request(:get, "ra/apps/#{app_id}/pricing/intervals")
-      data = parse_response(r, 'data')
-
-      # preOrder isn't needed for for the request and has some
-      # values that can cause a failure (invalid dates) so we are removing it
-      data.delete('preOrder')
-
-      first_price = (data["pricingIntervalsFieldTO"]["value"] || []).count == 0 # first price
-      data["pricingIntervalsFieldTO"]["value"] ||= []
-      data["pricingIntervalsFieldTO"]["value"] << {} if data["pricingIntervalsFieldTO"]["value"].count == 0
-      data["pricingIntervalsFieldTO"]["value"].first["tierStem"] = price_tier.to_s
-
-      effective_date = (first_price ? nil : Time.now.to_i * 1000)
-      data["pricingIntervalsFieldTO"]["value"].first["priceTierEffectiveDate"] = effective_date
-      data["pricingIntervalsFieldTO"]["value"].first["priceTierEndDate"] = nil
-      data["countriesChanged"] = first_price
-      data["theWorld"] = true
-
-      if first_price # first price, need to set all countries
-        data["countries"] = supported_countries.collect do |c|
-          c.delete('region') # we don't care about le region
-          c
-        end
-      end
-
-      # send the changes back to Apple
-      r = request(:post) do |req|
-        req.url("ra/apps/#{app_id}/pricing/intervals")
-        req.body = data.to_json
-        req.headers['Content-Type'] = 'application/json'
-      end
-      handle_itc_response(r.body)
     end
 
     def transform_to_raw_pricing_intervals(app_id = nil, purchase_id = nil, pricing_intervals = 5, subscription_price_target = nil)
-      intervals_array = []
-      if pricing_intervals
-        intervals_array = pricing_intervals.map do |interval|
-          {
-            "value" =>  {
-              "tierStem" =>  interval[:tier],
-              "priceTierEffectiveDate" =>  interval[:begin_date],
-              "priceTierEndDate" =>  interval[:end_date],
-              "country" =>  interval[:country] || "WW",
-              "grandfathered" =>  interval[:grandfathered]
-            }
-          }
-        end
-      end
-
-      if subscription_price_target
-        pricing_calculator = iap_subscription_pricing_target(app_id: app_id, purchase_id: purchase_id, currency: subscription_price_target[:currency], tier: subscription_price_target[:tier])
-        intervals_array = pricing_calculator.map do |language_code, value|
-          existing_interval =
-            if pricing_intervals
-              pricing_intervals.find { |interval| interval[:country] == language_code }
-            end
-          grandfathered =
-            if existing_interval
-              existing_interval[:grandfathered].clone
-            else
-              { "value" => "FUTURE_NONE" }
-            end
-
-          {
-            "value" => {
-              "tierStem" => value["tierStem"],
-              "priceTierEffectiveDate" => value["priceTierEffectiveDate"],
-              "priceTierEndDate" => value["priceTierEndDate"],
-              "country" => language_code,
-              "grandfathered" => grandfathered
-            }
-          }
-        end
-      end
-
-      intervals_array
+      return []
     end
 
     def price_tier(app_id)
-      r = request(:get, "ra/apps/#{app_id}/pricing/intervals")
-      data = parse_response(r, 'data')
-
-      begin
-        data["pricingIntervalsFieldTO"]["value"].first["tierStem"]
-      rescue
-        nil
-      end
+      return nil
     end
 
     # Returns an array of all available pricing tiers
@@ -769,11 +687,7 @@ module Spaceship
     # }, {
     # ...
     def pricing_tiers(app_id)
-      @pricing_tiers ||= begin
-        r = request(:get, "ra/apps/#{app_id}/iaps/pricing/matrix")
-        data = parse_response(r, 'data')['pricingTiers']
-        data.map { |tier| Spaceship::Tunes::PricingTier.factory(tier) }
-      end
+      return []
     end
 
     #####################################################
@@ -1339,11 +1253,7 @@ module Spaceship
     # @param app_id (String) The Apple ID of any app
     # @return ([Spaceship::Tunes::IAPSubscriptionPricingTier]) An array of pricing tiers
     def subscription_pricing_tiers(app_id)
-      @subscription_pricing_tiers ||= begin
-        r = request(:get, "ra/apps/#{app_id}/iaps/pricing/matrix/recurring")
-        data = parse_response(r, "data")["pricingTiers"]
-        data.map { |tier| Spaceship::Tunes::IAPSubscriptionPricingTier.factory(tier) }
-      end
+      return []
     end
 
     # updates an In-App-Purchases-Family

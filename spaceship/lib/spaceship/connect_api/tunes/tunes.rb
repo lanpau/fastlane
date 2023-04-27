@@ -142,21 +142,9 @@ module Spaceship
         #   array with territory ids will set availability to territories with those ids,
         #   nil will leave app availability on AppStore as is
         # @param allow_removing_from_sale allows for removing app from sale when territory_ids is an empty array
-        def patch_app(app_id: nil, attributes: {}, app_price_tier_id: nil, territory_ids: nil, allow_removing_from_sale: false)
+        def patch_app(app_id: nil, attributes: {}, allow_removing_from_sale: false)
           relationships = {}
           included = []
-
-          # Territories
-          unless territory_ids.nil?
-            territories_data = territory_ids.map do |id|
-              { type: "territories", id: id }
-            end
-            if !territories_data.empty? || allow_removing_from_sale
-              relationships[:availableTerritories] = {
-                data: territories_data
-              }
-            end
-          end
 
           # Data
           data = {
